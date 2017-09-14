@@ -6,9 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Hagen Watkins",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^2.2.30"
+    "express": "^4.15.3",
+    "mongodb": "^2.2.30",
+    "mustache-express": "^1.2.5",
+    "nodemon": "^1.11.0"
   }
 }

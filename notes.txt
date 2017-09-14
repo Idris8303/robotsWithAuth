@@ -1,0 +1,4 @@
+notes
+
+
+ mongoimport --db user_directory --collection users  --file data.json

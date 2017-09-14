@@ -1,75 +1,72 @@
+
+
 const express = require('express');
-const mustacheExpress = require('mustache-express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const passport = require('passport');
+const mustache = require('mustache-express');
 const data = require('./data');
-
-mongoose.connect('mongoDB://localhost:27017/passportfun', {
-  useMongoClient: true
-});
-mongoose.Promise = global.Promise
-
+const mongoClient = require('mongodb').MongoClient;
+const router = require('express').Router();
 const app = express();
+
 app.use(express.static('public'));
-
-app.use(session({
-   secret: 'aflabajabawikiwoo',
-   resave: false,
-   saveUninitialized: false
- }));
-
- app.use(passport.initialize());
- app.use(passport.session());
- require('./passportconfig').configure(passport);
-
-
-app.use(bodyParser.urlencoded({extended: false}));
-
 app.engine('mustache', mustache());
-
 app.set('view engine', 'mustache');
 app.set('views', __dirname + '/views');
-app.use(express.static('public'))
 
-app.use(require('./routes/general'));
- app.use(require('./routes/auth'));
+app.get('/', function(req, res){
+  res.render('index', data);
+})
+app.get('/all', function(req, res){
+  res.render('all', data);
+});
 
-app.get('/', function(req, res) {
-  console.log(data);
+app.get('/details/:id', function(req, res) {
+   let person = data.users.find(function(item){
+    return item.id == req.params.id;
+  });
+
+  console.log('person', person);
+
+  console.log(req.params);
+
+  res.render('details', person);
+
+});
+
+const url = "mongodb://localhost:27017/user_daily_project725";
+
+app.get('/all', function(req, res){
   db.collection('users').find({}).toArray(function(err, results){
-    res.render('index',{users: results});
+
+    res.render('all',{users:results});
+
+    //res.json(results);
   });
 });
 
 
 
-app.get('/details/:id',function(req, res){
-  db.collection('users').find({id:Number(req.params.id)}).toArray(function(err, results){
-    console.log(results);
-  res.render('details', results[0]);
-  });
+app.get('/employed', function(req, res) {
+  db.collection('users').find({ job: { $type: 2 } }).toArray(function(err, results) {
+    res.render('index', { users: results })
+  })
 });
-
-
-
-  // let foundUser = data.users.find(function(user){
-  //   return user.id == req.params.id;
-  // });
-  // res.render('details', foundUser);
-
+app.get('/unemployed', function(req, res) {
+  db.collection('users').find({ job: { $type: 10 } }).toArray(function(err, results) {
+    res.render('index', { users: results });
+  })
+});
 
 
 let db;
 
-mongoClient.connect('mongodb://localhost:27017/user_directory', function(err, database){
+
+mongoClient.connect(url, function(err, database){
   if(err){
     console.log(err);
   } else {
     db = database;
-app.listen(2315, function() {
-  console.log('Listening on port 2315.');
+    app.listen(2315, function(){
+      console.log("mongo stuff");
     });
   }
 });
